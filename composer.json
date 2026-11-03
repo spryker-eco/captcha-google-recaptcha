@@ -16,6 +16,7 @@
         "spryker/zed-request": "^3.0.0"
     },
     "require-dev": {
+        "psr/http-message": "*",
         "spryker/code-sniffer": "*",
         "spryker/testify": "*"
     },
