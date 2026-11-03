@@ -30,7 +30,11 @@ class VerifyCaptchaTokenLocallyTest extends Unit
 {
     protected const string SITE_VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify';
 
-    protected const int MAXIMUM_TOKEN_LENGTH = 10240;
+    protected const int MINIMUM_TOKEN_LENGTH = 20;
+
+    protected const int MAXIMUM_TOKEN_LENGTH = 4096;
+
+    protected const string OTHER_HOSTNAME = 'backoffice.de.spryker.local';
 
     protected CaptchaGoogleRecaptchaClientTester $tester;
 
@@ -299,7 +303,56 @@ class VerifyCaptchaTokenLocallyTest extends Unit
         return [
             'empty token' => ['', 'missing_input_response'],
             'token longer than any reCAPTCHA token' => [str_repeat('a', static::MAXIMUM_TOKEN_LENGTH + 1), 'invalid_input_response'],
+            'token shorter than any reCAPTCHA token' => [str_repeat('a', static::MINIMUM_TOKEN_LENGTH - 1), 'invalid_input_response'],
+            'token with a character no reCAPTCHA token contains' => ['test-recaptcha-token.with-a-dot', 'invalid_input_response'],
+            'token with a trailing line break' => ["test-recaptcha-token\n", 'invalid_input_response'],
         ];
+    }
+
+    public function testSendsTokenOfMaximumLengthToSiteVerify(): void
+    {
+        // Arrange
+        $this->tester->haveRecaptchaConfiguration();
+        $this->tester->haveV2SuccessAnswer();
+
+        // Act
+        $captchaVerificationResponseTransfer = $this->tester->verifyCaptchaTokenLocally(str_repeat('a', static::MAXIMUM_TOKEN_LENGTH));
+
+        // Assert
+        $this->assertTrue($captchaVerificationResponseTransfer->getIsValid());
+        $this->assertCount(1, $this->tester->getSiteVerifyRequests());
+    }
+
+    public function testAcceptsTokenSolvedOnAllowedHostname(): void
+    {
+        // Arrange
+        $this->tester->haveRecaptchaConfiguration(allowedHostnames: [static::OTHER_HOSTNAME, CaptchaGoogleRecaptchaClientTester::HOSTNAME]);
+        $this->tester->haveV2SuccessAnswer();
+
+        // Act
+        $captchaVerificationResponseTransfer = $this->tester->verifyCaptchaTokenLocally();
+
+        // Assert
+        $this->assertTrue($captchaVerificationResponseTransfer->getIsValid());
+    }
+
+    /**
+     * @dataProvider provideSupportedVersions
+     */
+    public function testRejectsAndLogsTokenSolvedOnHostnameThatIsNotAllowed(string $version): void
+    {
+        // Arrange
+        $this->tester->haveRecaptchaConfiguration($version, allowedHostnames: [static::OTHER_HOSTNAME]);
+        $version === CaptchaGoogleRecaptchaConfig::VERSION_V3 ? $this->tester->haveV3SuccessAnswer(0.9) : $this->tester->haveV2SuccessAnswer();
+
+        // Act
+        $captchaVerificationResponseTransfer = $this->tester->verifyCaptchaTokenLocally();
+
+        // Assert
+        $this->assertRejected($captchaVerificationResponseTransfer, 'hostname_mismatch', CaptchaConfig::GLOSSARY_KEY_CAPTCHA_ERROR_INVALID);
+        $warningLogRecords = $this->tester->getLogRecords('warning');
+        $this->assertCount(1, $warningLogRecords);
+        $this->assertStringContainsString(CaptchaGoogleRecaptchaClientTester::HOSTNAME, $warningLogRecords[0]['message']);
     }
 
     /**

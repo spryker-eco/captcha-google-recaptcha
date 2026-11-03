@@ -17,8 +17,6 @@ use SprykerEco\Client\CaptchaGoogleRecaptcha\Builder\CaptchaVerificationResponse
 use SprykerEco\Client\CaptchaGoogleRecaptcha\Creator\RecaptchaWidgetCreator;
 use SprykerEco\Client\CaptchaGoogleRecaptcha\Creator\RecaptchaWidgetCreatorInterface;
 use SprykerEco\Client\CaptchaGoogleRecaptcha\RequestMethod\GuzzleSiteVerifyRequestMethod;
-use SprykerEco\Client\CaptchaGoogleRecaptcha\Resolver\RecaptchaTokenVerifierResolver;
-use SprykerEco\Client\CaptchaGoogleRecaptcha\Resolver\RecaptchaTokenVerifierResolverInterface;
 use SprykerEco\Client\CaptchaGoogleRecaptcha\Verifier\LocalRecaptchaTokenVerifier;
 use SprykerEco\Client\CaptchaGoogleRecaptcha\Verifier\RecaptchaTokenVerifierInterface;
 use SprykerEco\Client\CaptchaGoogleRecaptcha\Verifier\ZedRecaptchaTokenVerifier;
@@ -37,13 +35,13 @@ class CaptchaGoogleRecaptchaFactory extends AbstractFactory
         return new RecaptchaWidgetCreator($this->getConfig(), $this->getLogger());
     }
 
-    public function createRecaptchaTokenVerifierResolver(): RecaptchaTokenVerifierResolverInterface
+    public function createRecaptchaTokenVerifier(): RecaptchaTokenVerifierInterface
     {
-        return new RecaptchaTokenVerifierResolver(
-            $this->getIsConfigurationServiceProvided(),
-            $this->createLocalRecaptchaTokenVerifier(),
-            $this->createZedRecaptchaTokenVerifier(),
-        );
+        if ($this->getIsConfigurationServiceProvided()) {
+            return $this->createLocalRecaptchaTokenVerifier();
+        }
+
+        return $this->createZedRecaptchaTokenVerifier();
     }
 
     public function createLocalRecaptchaTokenVerifier(): RecaptchaTokenVerifierInterface
@@ -58,7 +56,7 @@ class CaptchaGoogleRecaptchaFactory extends AbstractFactory
 
     public function createZedRecaptchaTokenVerifier(): RecaptchaTokenVerifierInterface
     {
-        return new ZedRecaptchaTokenVerifier($this->createZedStub());
+        return new ZedRecaptchaTokenVerifier($this->createZedStub(), $this->getConfig(), $this->getLogger());
     }
 
     public function createGuzzleSiteVerifyRequestMethod(): RequestMethod

@@ -45,8 +45,7 @@ class GoogleRecaptchaCaptchaProviderPlugin extends AbstractPlugin implements Cap
     public function verify(CaptchaVerificationRequestTransfer $captchaVerificationRequestTransfer): CaptchaVerificationResponseTransfer
     {
         return $this->getFactory()
-            ->createRecaptchaTokenVerifierResolver()
-            ->resolveRecaptchaTokenVerifier()
+            ->createRecaptchaTokenVerifier()
             ->verify($captchaVerificationRequestTransfer);
     }
 

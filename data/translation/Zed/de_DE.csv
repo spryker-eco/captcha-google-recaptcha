@@ -1,14 +1,18 @@
 "Google reCAPTCHA","Google reCAPTCHA"
 "Google reCAPTCHA for the CAPTCHA a login asks for after repeated failed attempts.","Google reCAPTCHA für das CAPTCHA, das eine Anmeldung nach wiederholten Fehlversuchen verlangt."
-"reCAPTCHA Key","reCAPTCHA-Schlüssel"
+"reCAPTCHA Key",reCAPTCHA-Schlüssel
 "Version, site key and secret key of one reCAPTCHA key. The key must be of the selected version and list every Storefront, Back Office and Merchant Portal domain. Documentation: https://developers.google.com/recaptcha/intro","Version, Websiteschlüssel und geheimer Schlüssel eines reCAPTCHA-Schlüssels. Der Schlüssel muss zur gewählten Version gehören und alle Domains von Storefront, Back Office und Merchant Portal enthalten. Dokumentation: https://developers.google.com/recaptcha/intro"
-"reCAPTCHA Version","reCAPTCHA-Version"
+"reCAPTCHA Version",reCAPTCHA-Version
 "The v2 checkbox asks the user to tick ""I'm not a robot""; v3 scores the user invisibly when the form is submitted.","Die v2-Checkbox fordert den Nutzer auf, „Ich bin kein Roboter“ anzuklicken; v3 bewertet den Nutzer unsichtbar beim Absenden des Formulars."
-"v2 Checkbox","v2-Checkbox"
-"v3 Score","v3-Score"
-"Site Key","Websiteschlüssel"
+"v2 Checkbox",v2-Checkbox
+"v3 Score",v3-Score
+"Site Key",Websiteschlüssel
 "The public site key the CAPTCHA widget is rendered with.","Der öffentliche Websiteschlüssel, mit dem das CAPTCHA-Widget angezeigt wird."
 "Secret Key","Geheimer Schlüssel"
 "The secret key the token is verified with. Stored encrypted.","Der geheime Schlüssel, mit dem das Token geprüft wird. Wird verschlüsselt gespeichert."
 "Minimum Score (v3)","Mindestscore (v3)"
 "A v3 token whose score is below this value is rejected. Google recommends starting with 0.5.","Ein v3-Token mit einem Score unter diesem Wert wird abgelehnt. Google empfiehlt, mit 0.5 zu beginnen."
+"Token Verification",Token-Prüfung
+"Checks of a verified token in addition to the checks of Google.","Prüfungen eines verifizierten Tokens zusätzlich zu den Prüfungen von Google."
+"Allowed Hostnames","Erlaubte Hostnamen"
+"Hosts a token must have been solved on, separated by commas, for example the Storefront, Back Office and Merchant Portal hosts. Leave empty to accept every host that Google accepts for the key.","Hosts, auf denen ein Token gelöst worden sein muss, durch Kommas getrennt, zum Beispiel die Hosts von Storefront, Back Office und Merchant Portal. Leer lassen, um jeden Host zu akzeptieren, den Google für den Schlüssel akzeptiert."

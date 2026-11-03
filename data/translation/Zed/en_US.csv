@@ -12,3 +12,7 @@
 "The secret key the token is verified with. Stored encrypted.","The secret key the token is verified with. Stored encrypted."
 "Minimum Score (v3)","Minimum Score (v3)"
 "A v3 token whose score is below this value is rejected. Google recommends starting with 0.5.","A v3 token whose score is below this value is rejected. Google recommends starting with 0.5."
+"Token Verification","Token Verification"
+"Checks of a verified token in addition to the checks of Google.","Checks of a verified token in addition to the checks of Google."
+"Allowed Hostnames","Allowed Hostnames"
+"Hosts a token must have been solved on, separated by commas, for example the Storefront, Back Office and Merchant Portal hosts. Leave empty to accept every host that Google accepts for the key.","Hosts a token must have been solved on, separated by commas, for example the Storefront, Back Office and Merchant Portal hosts. Leave empty to accept every host that Google accepts for the key."

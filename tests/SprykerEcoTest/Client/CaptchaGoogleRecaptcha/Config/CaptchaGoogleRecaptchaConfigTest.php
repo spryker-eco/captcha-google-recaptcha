@@ -30,7 +30,7 @@ class CaptchaGoogleRecaptchaConfigTest extends Unit
     public function testReturnsStoredScoreThresholdOrDefaultForValueThatIsNoNumber(mixed $storedScoreThreshold, float $expectedScoreThreshold): void
     {
         // Arrange
-        $captchaGoogleRecaptchaConfig = $this->createConfigWithStoredScoreThreshold($storedScoreThreshold);
+        $captchaGoogleRecaptchaConfig = $this->createConfigWithStoredValue($storedScoreThreshold);
 
         // Act
         $scoreThreshold = $captchaGoogleRecaptchaConfig->getScoreThreshold();
@@ -52,9 +52,39 @@ class CaptchaGoogleRecaptchaConfigTest extends Unit
         ];
     }
 
-    protected function createConfigWithStoredScoreThreshold(mixed $storedScoreThreshold): CaptchaGoogleRecaptchaConfig
+    /**
+     * @dataProvider provideStoredAllowedHostnames
+     *
+     * @param list<string> $expectedAllowedHostnames
+     */
+    public function testReturnsStoredAllowedHostnamesLowercasedWithoutEmptyEntries(?string $storedAllowedHostnames, array $expectedAllowedHostnames): void
     {
-        return new class ($storedScoreThreshold) extends CaptchaGoogleRecaptchaConfig {
+        // Arrange
+        $captchaGoogleRecaptchaConfig = $this->createConfigWithStoredValue($storedAllowedHostnames);
+
+        // Act
+        $allowedHostnames = $captchaGoogleRecaptchaConfig->getAllowedHostnames();
+
+        // Assert
+        $this->assertSame($expectedAllowedHostnames, $allowedHostnames);
+    }
+
+    /**
+     * @return array<string, array<mixed>>
+     */
+    public function provideStoredAllowedHostnames(): array
+    {
+        return [
+            'not configured' => [null, []],
+            'emptied setting' => ['', []],
+            'one host' => ['shop.example.com', ['shop.example.com']],
+            'hosts separated by commas and spaces' => [' Shop.Example.com, backoffice.example.com ,,mp.example.com ', ['shop.example.com', 'backoffice.example.com', 'mp.example.com']],
+        ];
+    }
+
+    protected function createConfigWithStoredValue(mixed $storedValue): CaptchaGoogleRecaptchaConfig
+    {
+        return new class ($storedValue) extends CaptchaGoogleRecaptchaConfig {
             public function __construct(protected mixed $storedValue)
             {
             }

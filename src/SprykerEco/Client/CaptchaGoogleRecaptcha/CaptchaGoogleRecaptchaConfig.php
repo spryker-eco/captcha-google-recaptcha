@@ -48,6 +48,8 @@ class CaptchaGoogleRecaptchaConfig extends AbstractBundleConfig
 
     protected const string CONFIGURATION_KEY_SCORE_THRESHOLD = 'integrations:google_recaptcha:credentials:score_threshold';
 
+    protected const string CONFIGURATION_KEY_ALLOWED_HOSTNAMES = 'integrations:google_recaptcha:verification:allowed_hostnames';
+
     protected const float DEFAULT_SCORE_THRESHOLD = 0.5;
 
     protected const string SCRIPT_URL = 'https://www.google.com/recaptcha/api.js';
@@ -60,7 +62,16 @@ class CaptchaGoogleRecaptchaConfig extends AbstractBundleConfig
 
     protected const int CONNECT_TIMEOUT_SECONDS = 2;
 
-    protected const int MAXIMUM_TOKEN_LENGTH = 10240;
+    protected const int MINIMUM_TOKEN_LENGTH = 20;
+
+    protected const int MAXIMUM_TOKEN_LENGTH = 4096;
+
+    protected const string TOKEN_PATTERN = '/^[A-Za-z0-9_-]+$/D';
+
+    /**
+     * @var list<string>
+     */
+    protected const array ZED_APPLICATIONS = ['ZED', 'MERCHANT_PORTAL'];
 
     /**
      * Specification:
@@ -109,6 +120,22 @@ class CaptchaGoogleRecaptchaConfig extends AbstractBundleConfig
         $scoreThreshold = $this->getModuleConfig(static::CONFIGURATION_KEY_SCORE_THRESHOLD, static::DEFAULT_SCORE_THRESHOLD);
 
         return is_numeric($scoreThreshold) ? (float)$scoreThreshold : static::DEFAULT_SCORE_THRESHOLD;
+    }
+
+    /**
+     * Specification:
+     * - Returns the hosts a token must have been solved on, lowercased, from the Back Office configuration (`integrations:google_recaptcha:verification:allowed_hostnames`), where they are separated by commas or spaces.
+     * - Returns an empty list when the setting is empty: a token is then accepted for every host that Google accepts for the key.
+     *
+     * @api
+     *
+     * @return list<string>
+     */
+    public function getAllowedHostnames(): array
+    {
+        $allowedHostnames = strtolower((string)$this->getModuleConfig(static::CONFIGURATION_KEY_ALLOWED_HOSTNAMES, ''));
+
+        return array_values(array_filter((array)preg_split('/[\s,]+/', $allowedHostnames)));
     }
 
     /**
@@ -168,6 +195,17 @@ class CaptchaGoogleRecaptchaConfig extends AbstractBundleConfig
 
     /**
      * Specification:
+     * - Returns the length in bytes below which a token is rejected without a siteverify request.
+     *
+     * @api
+     */
+    public function getMinimumTokenLength(): int
+    {
+        return static::MINIMUM_TOKEN_LENGTH;
+    }
+
+    /**
+     * Specification:
      * - Returns the length in bytes above which a token is rejected without a siteverify request.
      *
      * @api
@@ -175,5 +213,28 @@ class CaptchaGoogleRecaptchaConfig extends AbstractBundleConfig
     public function getMaximumTokenLength(): int
     {
         return static::MAXIMUM_TOKEN_LENGTH;
+    }
+
+    /**
+     * Specification:
+     * - Returns the regular expression a token has to match to be sent to siteverify: reCAPTCHA tokens are base64url strings.
+     *
+     * @api
+     */
+    public function getTokenPattern(): string
+    {
+        return static::TOKEN_PATTERN;
+    }
+
+    /**
+     * Specification:
+     * - Returns `true` in the Back Office, Backend Gateway, Backend API and Merchant Portal applications.
+     * - These applications verify tokens in-process, so they need `ConfigurationApplicationPlugin` to read the secret key.
+     *
+     * @api
+     */
+    public function isZedApplication(): bool
+    {
+        return defined('APPLICATION') && in_array(constant('APPLICATION'), static::ZED_APPLICATIONS, true);
     }
 }

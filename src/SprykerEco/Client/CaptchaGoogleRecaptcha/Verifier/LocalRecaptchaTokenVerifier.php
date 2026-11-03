@@ -58,6 +58,8 @@ class LocalRecaptchaTokenVerifier implements RecaptchaTokenVerifierInterface
 
     protected const string LOG_MESSAGE_V2_CHECKBOX_ANSWER_WITH_SCORE = 'Google reCAPTCHA answered a v2 checkbox token with a score. Without billing this is the answer above the free quota, so the token is rejected.';
 
+    protected const string LOG_MESSAGE_HOSTNAME_NOT_ALLOWED = 'Google reCAPTCHA verified a token solved on "%s", which is not one of the allowed hostnames, so the token is rejected.';
+
     public function __construct(
         protected RequestMethod $requestMethod,
         protected CaptchaVerificationResponseBuilderInterface $captchaVerificationResponseBuilder,
@@ -84,7 +86,7 @@ class LocalRecaptchaTokenVerifier implements RecaptchaTokenVerifierInterface
 
         $token = (string)$captchaVerificationRequestTransfer->getPayload();
 
-        if (strlen($token) > $this->captchaGoogleRecaptchaConfig->getMaximumTokenLength()) {
+        if ($token !== '' && !$this->isWellFormedToken($token)) {
             return $this->captchaVerificationResponseBuilder->createInvalidResponse($this->normalizeErrorCode(static::ERROR_CODE_INVALID_INPUT_RESPONSE));
         }
 
@@ -94,10 +96,32 @@ class LocalRecaptchaTokenVerifier implements RecaptchaTokenVerifierInterface
             return $this->mapErrorCodes($response->getErrorCodes());
         }
 
+        if (!$this->isAllowedHostname($response)) {
+            $this->logger->warning(sprintf(static::LOG_MESSAGE_HOSTNAME_NOT_ALLOWED, $response->getHostname()));
+
+            return $this->captchaVerificationResponseBuilder->createInvalidResponse($this->normalizeErrorCode(ReCaptcha::E_HOSTNAME_MISMATCH));
+        }
+
         return match ($version) {
             CaptchaGoogleRecaptchaConfig::VERSION_V2_CHECKBOX => $this->verifyV2CheckboxAnswer($response),
             CaptchaGoogleRecaptchaConfig::VERSION_V3 => $this->verifyV3Answer($response, (string)$captchaVerificationRequestTransfer->getContext()),
         };
+    }
+
+    protected function isWellFormedToken(string $token): bool
+    {
+        $tokenLength = strlen($token);
+
+        return $tokenLength >= $this->captchaGoogleRecaptchaConfig->getMinimumTokenLength()
+            && $tokenLength <= $this->captchaGoogleRecaptchaConfig->getMaximumTokenLength()
+            && preg_match($this->captchaGoogleRecaptchaConfig->getTokenPattern(), $token) === 1;
+    }
+
+    protected function isAllowedHostname(Response $response): bool
+    {
+        $allowedHostnames = $this->captchaGoogleRecaptchaConfig->getAllowedHostnames();
+
+        return $allowedHostnames === [] || in_array(strtolower((string)$response->getHostname()), $allowedHostnames, true);
     }
 
     protected function verifyV2CheckboxAnswer(Response $response): CaptchaVerificationResponseTransfer

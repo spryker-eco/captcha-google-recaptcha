@@ -63,6 +63,7 @@ class CaptchaGoogleRecaptchaBusinessTester extends Actor
         $captchaGoogleRecaptchaConfigStub = Stub::make(CaptchaGoogleRecaptchaConfig::class, [
             'getVersion' => CaptchaGoogleRecaptchaConfig::VERSION_V2_CHECKBOX,
             'getSecretKey' => $secretKey,
+            'getAllowedHostnames' => [],
         ]);
         $captchaGoogleRecaptchaFactoryStub = Stub::make(CaptchaGoogleRecaptchaFactory::class, [
             'getHttpClient' => new Client(['handler' => $handlerStack]),

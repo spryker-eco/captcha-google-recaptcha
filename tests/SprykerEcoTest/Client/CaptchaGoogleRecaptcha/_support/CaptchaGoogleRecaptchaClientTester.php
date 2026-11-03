@@ -76,11 +76,13 @@ class CaptchaGoogleRecaptchaClientTester extends Actor
         string $siteKey = self::SITE_KEY,
         string $secretKey = self::SECRET_KEY,
         float $scoreThreshold = self::SCORE_THRESHOLD,
+        array $allowedHostnames = [],
     ): void {
         $this->mockConfigMethod('getVersion', $version);
         $this->mockConfigMethod('getSiteKey', $siteKey);
         $this->mockConfigMethod('getSecretKey', $secretKey);
         $this->mockConfigMethod('getScoreThreshold', $scoreThreshold);
+        $this->mockConfigMethod('getAllowedHostnames', $allowedHostnames);
     }
 
     public function haveSiteVerifyAnswers(Response|Throwable ...$answers): void

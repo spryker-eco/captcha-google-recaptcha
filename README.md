@@ -39,6 +39,7 @@ the Back Office:
 | Site Key | `integrations:google_recaptcha:credentials:site_key` | Public. Published to the Storefront. |
 | Secret Key | `integrations:google_recaptcha:credentials:secret_key` | Secret: stored encrypted, never published to the key-value store. |
 | Minimum Score (v3) | `integrations:google_recaptcha:credentials:score_threshold` | `0.5` by default. A v3 token with a lower score is rejected. |
+| Allowed Hostnames | `integrations:google_recaptcha:verification:allowed_hostnames` | Optional, empty by default. Hosts separated by commas, for example the Storefront, Back Office and Merchant Portal hosts. When set, a token solved on any other host is rejected, even if the domain verification of the key is turned off in the Google console. |
 
 `console configuration:sync` registers the settings; the install recipes run it. A deployment can seed the keys from
 environment variables instead of the Back Office:
@@ -77,7 +78,8 @@ class CaptchaDependencyProvider extends SprykerCaptchaDependencyProvider
 The Merchant Portal verifies tokens itself and needs the Configuration service, so register
 `Spryker\Zed\Configuration\Communication\Plugin\Application\ConfigurationApplicationPlugin` in
 `Pyz\Zed\MerchantPortalApplication\MerchantPortalApplicationDependencyProvider::getMerchantPortalApplicationPlugins()`.
-The Back Office and the Backend Gateway register it already.
+The Back Office and the Backend Gateway register it already. Without it, a Zed application verifies tokens through the
+Zed gateway and logs a warning for every token.
 
 Then build the frontends:
 
@@ -102,8 +104,12 @@ The secret key is readable only in an application that registers `ConfigurationA
 
 The request to Google's `siteverify` uses a timeout of 2 s to connect and 5 s in total. The result:
 
+A token that is not a base64url string of 20 to 4096 characters is rejected as invalid (`invalid_input_response`)
+without a request to Google.
+
 | Answer | Result |
 |---|---|
+| success for a host that is not in Allowed Hostnames | invalid (`hostname_mismatch`), logged as a warning |
 | v2: success without a score | valid |
 | v3: success, action equals the context, score ≥ minimum | valid, with `score` |
 | v3: other action, or a score below the minimum | invalid (`action_mismatch`, `score_too_low`) |

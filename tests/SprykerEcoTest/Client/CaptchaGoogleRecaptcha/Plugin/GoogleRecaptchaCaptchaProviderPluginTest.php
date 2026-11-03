@@ -10,6 +10,7 @@ namespace SprykerEcoTest\Client\CaptchaGoogleRecaptcha\Plugin;
 use Codeception\Test\Unit;
 use Generated\Shared\Transfer\CaptchaChallengeRequestTransfer;
 use Generated\Shared\Transfer\CaptchaChallengeResponseTransfer;
+use Generated\Shared\Transfer\CaptchaVerificationRequestTransfer;
 use Generated\Shared\Transfer\CaptchaVerificationResponseTransfer;
 use Spryker\Client\Captcha\CaptchaClientInterface;
 use Spryker\Client\Captcha\CaptchaDependencyProvider;
@@ -171,19 +172,14 @@ class GoogleRecaptchaCaptchaProviderPluginTest extends Unit
         $this->assertCount(1, $this->tester->getSiteVerifyRequests());
     }
 
-    public function testVerifiesThroughZedWhereConfigurationServiceIsMissing(): void
+    public function testVerifiesThroughZedWithoutWarningWhereStorefrontHasNoConfigurationService(): void
     {
         // Arrange
         $this->tester->haveRecaptchaConfiguration();
         $this->tester->haveSiteVerifyAnswers();
+        $this->tester->mockConfigMethod('isZedApplication', false);
         $captchaVerificationRequestTransfer = $this->tester->createVerificationRequest();
-        $zedRequestClientMock = $this->createMock(ZedRequestClientInterface::class);
-        $zedRequestClientMock->expects($this->once())
-            ->method('call')
-            ->with(static::ZED_VERIFY_CAPTCHA_TOKEN_URL, $captchaVerificationRequestTransfer)
-            ->willReturn((new CaptchaVerificationResponseTransfer())->setIsValid(true));
-        $this->tester->setDependency(CaptchaGoogleRecaptchaDependencyProvider::IS_CONFIGURATION_SERVICE_PROVIDED, false);
-        $this->tester->setDependency(CaptchaGoogleRecaptchaDependencyProvider::CLIENT_ZED_REQUEST, $zedRequestClientMock);
+        $this->haveZedRequestClientAnsweringValid($captchaVerificationRequestTransfer);
 
         // Act
         $captchaVerificationResponseTransfer = $this->tester->createPlugin()->verify($captchaVerificationRequestTransfer);
@@ -191,6 +187,37 @@ class GoogleRecaptchaCaptchaProviderPluginTest extends Unit
         // Assert
         $this->assertTrue($captchaVerificationResponseTransfer->getIsValid());
         $this->assertCount(0, $this->tester->getSiteVerifyRequests());
+        $this->assertCount(0, $this->tester->getLogRecords('warning'));
+    }
+
+    public function testVerifiesThroughZedAndLogsWarningWhereZedApplicationHasNoConfigurationService(): void
+    {
+        // Arrange
+        $this->tester->haveRecaptchaConfiguration();
+        $this->tester->haveSiteVerifyAnswers();
+        $this->tester->mockConfigMethod('isZedApplication', true);
+        $captchaVerificationRequestTransfer = $this->tester->createVerificationRequest();
+        $this->haveZedRequestClientAnsweringValid($captchaVerificationRequestTransfer);
+
+        // Act
+        $captchaVerificationResponseTransfer = $this->tester->createPlugin()->verify($captchaVerificationRequestTransfer);
+
+        // Assert
+        $this->assertTrue($captchaVerificationResponseTransfer->getIsValid());
+        $warningLogRecords = $this->tester->getLogRecords('warning');
+        $this->assertCount(1, $warningLogRecords);
+        $this->assertStringContainsString('ConfigurationApplicationPlugin', $warningLogRecords[0]['message']);
+    }
+
+    protected function haveZedRequestClientAnsweringValid(CaptchaVerificationRequestTransfer $captchaVerificationRequestTransfer): void
+    {
+        $zedRequestClientMock = $this->createMock(ZedRequestClientInterface::class);
+        $zedRequestClientMock->expects($this->once())
+            ->method('call')
+            ->with(static::ZED_VERIFY_CAPTCHA_TOKEN_URL, $captchaVerificationRequestTransfer)
+            ->willReturn((new CaptchaVerificationResponseTransfer())->setIsValid(true));
+        $this->tester->setDependency(CaptchaGoogleRecaptchaDependencyProvider::IS_CONFIGURATION_SERVICE_PROVIDED, false);
+        $this->tester->setDependency(CaptchaGoogleRecaptchaDependencyProvider::CLIENT_ZED_REQUEST, $zedRequestClientMock);
     }
 
     protected function createChallenge(string $context): CaptchaChallengeResponseTransfer
