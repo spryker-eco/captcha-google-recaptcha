@@ -1,0 +1,49 @@
+{
+    "name": "spryker-eco/captcha-google-recaptcha",
+    "type": "library",
+    "description": "CaptchaGoogleRecaptcha module",
+    "license": "proprietary",
+    "require": {
+        "google/recaptcha": "^1.5.2 || ^2.1.0",
+        "php": ">=8.3",
+        "spryker/captcha": "^1.0.0",
+        "spryker/captcha-extension": "^1.0.0",
+        "spryker/configuration": "^1.6.0",
+        "spryker/guzzle": "^2.4.1",
+        "spryker/kernel": "^3.84.0",
+        "spryker/log": "^3.0.0",
+        "spryker/transfer": "^3.27.0",
+        "spryker/zed-request": "^3.0.0"
+    },
+    "require-dev": {
+        "spryker/code-sniffer": "*",
+        "spryker/testify": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "SprykerEco\\": "src/SprykerEco/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "SprykerEcoTest\\": "tests/SprykerEcoTest/"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "scripts": {
+        "cs-check": "phpcs -p -s --standard=vendor/spryker/code-sniffer/SprykerStrict/ruleset.xml src/ tests/",
+        "cs-fix": "phpcbf -p --standard=vendor/spryker/code-sniffer/SprykerStrict/ruleset.xml src/ tests/"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0.x-dev"
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}
