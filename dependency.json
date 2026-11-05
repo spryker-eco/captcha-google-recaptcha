@@ -1,0 +1,6 @@
+{
+    "include": {
+        "spryker/configuration": "Stores the reCAPTCHA keys; read through the Kernel getModuleConfig().",
+        "spryker/transfer": "Provides transfer objects definition with strict types."
+    }
+}

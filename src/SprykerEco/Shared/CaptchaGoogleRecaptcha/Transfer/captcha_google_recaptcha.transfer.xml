@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<transfers xmlns="spryker:transfer-01" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="spryker:transfer-01 http://static.spryker.com/transfer-01.xsd">
+
+    <transfer name="CaptchaChallengeRequest" strict="true">
+        <property name="context" type="string"/>
+    </transfer>
+
+    <transfer name="CaptchaChallengeResponse" strict="true">
+        <property name="isSuccessful" type="bool"/>
+        <property name="widget" type="CaptchaWidget"/>
+        <property name="messages" type="Message[]" singular="message"/>
+    </transfer>
+
+    <transfer name="CaptchaWidget" strict="true">
+        <property name="tagName" type="string"/>
+        <property name="attributes" type="array" singular="attribute" associative="true"/>
+        <property name="nameAttribute" type="string"/>
+        <property name="loaderTagName" type="string"/>
+        <property name="scriptAssetPaths" type="string[]" singular="scriptAssetPath"/>
+        <property name="scriptUrls" type="string[]" singular="scriptUrl"/>
+    </transfer>
+
+    <transfer name="CaptchaVerificationRequest" strict="true">
+        <property name="payload" type="string"/>
+        <property name="context" type="string"/>
+        <property name="ip" type="string"/>
+    </transfer>
+
+    <transfer name="CaptchaVerificationResponse" strict="true">
+        <property name="isValid" type="bool"/>
+        <property name="isExpired" type="bool"/>
+        <property name="messages" type="Message[]" singular="message"/>
+        <property name="score" type="float"/>
+        <property name="errorCode" type="string"/>
+        <property name="isProviderUnavailable" type="bool"/>
+    </transfer>
+
+    <transfer name="Message">
+        <property name="value" type="string"/>
+    </transfer>
+
+</transfers>
