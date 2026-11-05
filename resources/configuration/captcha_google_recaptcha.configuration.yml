@@ -8,7 +8,7 @@ features:
       tabs:
           - key: google_recaptcha
             name: Google reCAPTCHA
-            description: Google reCAPTCHA for the CAPTCHA a login asks for after repeated failed attempts.
+            description: Google reCAPTCHA for the CAPTCHA of the login forms.
             enabled: true
             order: 20
             groups:

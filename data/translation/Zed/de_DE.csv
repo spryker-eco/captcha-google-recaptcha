@@ -1,5 +1,5 @@
 "Google reCAPTCHA","Google reCAPTCHA"
-"Google reCAPTCHA for the CAPTCHA a login asks for after repeated failed attempts.","Google reCAPTCHA für das CAPTCHA, das eine Anmeldung nach wiederholten Fehlversuchen verlangt."
+"Google reCAPTCHA for the CAPTCHA of the login forms.","Google reCAPTCHA für das CAPTCHA der Anmeldeformulare."
 "reCAPTCHA Key",reCAPTCHA-Schlüssel
 "Version, site key and secret key of one reCAPTCHA key. The key must be of the selected version and list every Storefront, Back Office and Merchant Portal domain. Documentation: https://developers.google.com/recaptcha/intro","Version, Websiteschlüssel und geheimer Schlüssel eines reCAPTCHA-Schlüssels. Der Schlüssel muss zur gewählten Version gehören und alle Domains von Storefront, Back Office und Merchant Portal enthalten. Dokumentation: https://developers.google.com/recaptcha/intro"
 "reCAPTCHA Version",reCAPTCHA-Version
