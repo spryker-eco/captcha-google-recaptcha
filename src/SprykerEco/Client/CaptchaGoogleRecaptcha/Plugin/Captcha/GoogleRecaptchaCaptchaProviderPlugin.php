@@ -59,4 +59,15 @@ class GoogleRecaptchaCaptchaProviderPlugin extends AbstractPlugin implements Cap
     {
         return $this->getFactory()->getConfig()->getResponseFieldName();
     }
+
+    /**
+     * Specification:
+     * - Returns `false`: Google issues the challenge in the browser, so there is nothing to create ahead of time.
+     *
+     * @api
+     */
+    public function isChallengePoolSupported(): bool
+    {
+        return false;
+    }
 }

@@ -5,7 +5,8 @@
 CaptchaGoogleRecaptcha provides a [Google reCAPTCHA](https://developers.google.com/recaptcha) CAPTCHA provider for the
 Spryker `Captcha` module. It supports reCAPTCHA v2 (the "I'm not a robot" checkbox) and v3 (an invisible score). It
 verifies tokens with Google's official PHP library [`google/recaptcha`](https://github.com/google/recaptcha). The keys
-are managed in the Back Office.
+are managed in the Back Office. The `Captcha` module renders the widget on the login forms and checks the token
+before the login is processed, this module creates the widget and verifies the token.
 
 ## Installation
 
@@ -26,7 +27,8 @@ resolves 1.3.1. The module uses only the API that both lines share.
 4. For production traffic, link a billing account to the project. Without billing, Google answers every token with
    "success" once the free quota is used up. The free quota is 10,000 verifications per month for the whole
    organization. This module rejects that answer as unavailable (see below), so the logins that need a CAPTCHA stay
-   blocked until the quota resets.
+   blocked until the quota resets. In the CAPTCHA mode `always` of the `Captcha` module every login submission is one
+   verification.
 
 ## Configuration
 
@@ -91,8 +93,37 @@ npm run mp:build  # Merchant Portal: Presentation/Components/entry.ts (v3)
 ```
 
 v2 needs none of these scripts: Google's `api.js` renders the checkbox by itself. For v3, the scripts request a token
-with the CAPTCHA context as its action (`customer`, `user`) when the form is submitted. Google advises this because a
-token expires two minutes after it is issued.
+when the form is submitted, with the CAPTCHA context as its action. Google advises this because a token expires two
+minutes after it is issued.
+
+## Login forms
+
+The `Captcha` module wires the CAPTCHA into the five login forms; this provider needs no login-specific wiring. The
+login-form plugins of the `Captcha` module are:
+
+| Application | Plugin |
+|---|---|
+| Storefront | `Spryker\Yves\Captcha\Plugin\CustomerPage\CustomerLoginFormCaptchaExpanderPlugin`, `Spryker\Yves\Captcha\Plugin\AgentPage\AgentLoginFormCaptchaExpanderPlugin`, `Spryker\Yves\Captcha\Plugin\EventDispatcher\LoginCaptchaEventDispatcherPlugin` |
+| Back Office, Merchant Portal | `Spryker\Zed\Captcha\Communication\Plugin\SecurityGui\UserLoginFormCaptchaExpanderPlugin`, `Spryker\Zed\Captcha\Communication\Plugin\SecurityMerchantPortalGui\MerchantPortalLoginFormCaptchaExpanderPlugin`, `Spryker\Zed\Captcha\Communication\Plugin\AgentSecurityMerchantPortalGui\AgentMerchantPortalLoginFormCaptchaExpanderPlugin`, `Spryker\Zed\Captcha\Communication\Plugin\EventDispatcher\LoginCaptchaEventDispatcherPlugin` |
+
+The CAPTCHA mode of the `Captcha` module, the Back Office setting `security:captcha:login:mode`, decides when a login
+form shows the widget: `always` (default) on every login, `after_failed_attempts` only while a step-up plugin (for
+example the security blocker ones) requires it.
+
+The CAPTCHA context is the identifier of the login form. It is the v3 action name, and a v3 token is accepted only by
+the form whose context equals its action:
+
+| Context | Login form |
+|---|---|
+| `storefront_customer_login` | Storefront customer login |
+| `storefront_agent_login` | Storefront agent login |
+| `backoffice_user_login` | Back Office login |
+| `merchant_portal_user_login` | Merchant Portal login |
+| `merchant_portal_agent_login` | Merchant Portal agent login |
+
+Google issues the challenge in the browser, so `GoogleRecaptchaCaptchaProviderPlugin::isChallengePoolSupported()`
+returns `false`: the `Captcha` module renders every widget straight from this provider and keeps its challenge pool
+empty for it (`captcha:challenge-pool:refill` reports that the provider does not support a challenge pool).
 
 ## How a token is verified
 
@@ -130,8 +161,8 @@ Every case except a valid token rejects the login that needs a CAPTCHA, and the 
 - **Outbound HTTPS.** The Back Office, the Merchant Portal and the Backend Gateway call
   `https://www.google.com/recaptcha/api/siteverify`.
 - **Privacy.** reCAPTCHA sends the visitor's IP address and browser signals to Google and sets the `_GRECAPTCHA`
-  cookie. The widget loads only on a login that requires a CAPTCHA. Cover it in the privacy policy and the cookie
-  notice.
+  cookie. The widget loads on every login form in the CAPTCHA mode `always`, and on a login that requires a CAPTCHA
+  in the mode `after_failed_attempts`. Cover it in the privacy policy and the cookie notice.
 - **v3 badge.** v3 shows Google's reCAPTCHA badge on the pages that load it. Hiding the badge requires the text "This
   site is protected by reCAPTCHA" in the form.
 
