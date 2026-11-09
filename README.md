@@ -121,9 +121,9 @@ the form whose context equals its action:
 | `merchant_portal_user_login` | Merchant Portal login |
 | `merchant_portal_agent_login` | Merchant Portal agent login |
 
-Google issues the challenge in the browser, so `GoogleRecaptchaCaptchaProviderPlugin::isChallengePoolSupported()`
-returns `false`: the `Captcha` module renders every widget straight from this provider and keeps its challenge pool
-empty for it (`captcha:challenge-pool:refill` reports that the provider does not support a challenge pool).
+Google issues the challenge in the browser, so the provider does not implement `CaptchaChallengeUrlProviderPluginInterface`:
+the `Captcha` module renders the widget straight from this provider, and its challenge endpoint does not serve challenges
+for it.
 
 ## How a token is verified
 
