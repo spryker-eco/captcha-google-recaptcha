@@ -16,7 +16,6 @@ use Spryker\Client\Captcha\CaptchaClientInterface;
 use Spryker\Client\Captcha\CaptchaDependencyProvider;
 use Spryker\Client\ZedRequest\ZedRequestClientInterface;
 use Spryker\Shared\Captcha\CaptchaConfig;
-use Spryker\Shared\Captcha\CaptchaConstants;
 use SprykerEco\Client\CaptchaGoogleRecaptcha\CaptchaGoogleRecaptchaConfig;
 use SprykerEco\Client\CaptchaGoogleRecaptcha\CaptchaGoogleRecaptchaDependencyProvider;
 use SprykerEcoTest\Client\CaptchaGoogleRecaptcha\CaptchaGoogleRecaptchaClientTester;
@@ -227,7 +226,7 @@ class GoogleRecaptchaCaptchaProviderPluginTest extends Unit
 
     protected function haveCaptchaClientWithGoogleRecaptchaProvider(): CaptchaClientInterface
     {
-        $this->tester->setConfig(CaptchaConstants::IS_CAPTCHA_ENABLED, true);
+        $this->tester->haveCaptchaEnabled(true);
         $this->tester->setDependency(CaptchaDependencyProvider::PLUGIN_CAPTCHA_PROVIDER, $this->tester->createPlugin());
 
         return $this->tester->getLocator()->captcha()->client();

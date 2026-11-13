@@ -55,8 +55,8 @@ console configuration:import-environment \
 The Storefront reads the site key and the version from the key-value store, so it sees a change after the
 `sync.storage.configuration` queue has been processed.
 
-CAPTCHA is off by default. Set `$config[CaptchaConstants::IS_CAPTCHA_ENABLED] = true;` in
-`config/Shared/config_default.php`, together with the Redis connection of the `Captcha` module.
+CAPTCHA is off by default. Once the keys above are set, turn on **Configuration → Security → CAPTCHA → Enable CAPTCHA**
+in the Back Office, and configure the Redis connection of the `Captcha` module in `config/Shared/config_default.php`.
 
 ## Wiring
 
