@@ -59,4 +59,18 @@ class GoogleRecaptchaCaptchaProviderPlugin extends AbstractPlugin implements Cap
     {
         return $this->getFactory()->getConfig()->getResponseFieldName();
     }
+
+    /**
+     * {@inheritDoc}
+     * - Returns `true` when the site key and the secret key of the Back Office configuration are set and the version is supported.
+     * - Reads the secret key in the calling application: an application without the configuration service (`ConfigurationApplicationPlugin`) cannot read it and returns `false`.
+     *
+     * @api
+     */
+    public function isConfigured(): bool
+    {
+        return $this->getFactory()
+            ->createRecaptchaConfigurationChecker()
+            ->isConfigured();
+    }
 }

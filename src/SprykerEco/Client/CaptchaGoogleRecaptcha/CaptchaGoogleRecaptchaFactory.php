@@ -14,6 +14,8 @@ use Spryker\Client\ZedRequest\ZedRequestClientInterface;
 use Spryker\Shared\Log\LoggerTrait;
 use SprykerEco\Client\CaptchaGoogleRecaptcha\Builder\CaptchaVerificationResponseBuilder;
 use SprykerEco\Client\CaptchaGoogleRecaptcha\Builder\CaptchaVerificationResponseBuilderInterface;
+use SprykerEco\Client\CaptchaGoogleRecaptcha\Checker\RecaptchaConfigurationChecker;
+use SprykerEco\Client\CaptchaGoogleRecaptcha\Checker\RecaptchaConfigurationCheckerInterface;
 use SprykerEco\Client\CaptchaGoogleRecaptcha\Creator\RecaptchaWidgetCreator;
 use SprykerEco\Client\CaptchaGoogleRecaptcha\Creator\RecaptchaWidgetCreatorInterface;
 use SprykerEco\Client\CaptchaGoogleRecaptcha\RequestMethod\GuzzleSiteVerifyRequestMethod;
@@ -29,6 +31,11 @@ use SprykerEco\Client\CaptchaGoogleRecaptcha\Zed\CaptchaGoogleRecaptchaStubInter
 class CaptchaGoogleRecaptchaFactory extends AbstractFactory
 {
     use LoggerTrait;
+
+    public function createRecaptchaConfigurationChecker(): RecaptchaConfigurationCheckerInterface
+    {
+        return new RecaptchaConfigurationChecker($this->getConfig());
+    }
 
     public function createRecaptchaWidgetCreator(): RecaptchaWidgetCreatorInterface
     {

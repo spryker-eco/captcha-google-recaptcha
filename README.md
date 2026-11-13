@@ -57,6 +57,10 @@ The Storefront reads the site key and the version from the key-value store, so i
 
 CAPTCHA is off by default. Once the keys above are set, turn on **Configuration → Security → CAPTCHA → Enable CAPTCHA**
 in the Back Office, and configure the Redis connection of the `Captcha` module in `config/Shared/config_default.php`.
+Until the site key and the secret key are saved, the Back Office refuses to turn the CAPTCHA on:
+`GoogleRecaptchaCaptchaProviderPlugin::isConfigured()` returns `false` while either key is empty or the version is not
+supported. It checks that the keys are set, not that Google accepts them. Clearing a key while the CAPTCHA is on is not
+prevented.
 
 ## Wiring
 

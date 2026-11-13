@@ -143,6 +143,52 @@ class GoogleRecaptchaCaptchaProviderPluginTest extends Unit
         );
     }
 
+    /**
+     * @dataProvider provideSupportedVersions
+     */
+    public function testCaptchaClientReportsTheProviderAsConfiguredWithBothKeys(string $version): void
+    {
+        // Arrange
+        $this->tester->haveRecaptchaConfiguration($version);
+        $captchaClient = $this->haveCaptchaClientWithGoogleRecaptchaProvider();
+
+        // Act
+        $isCaptchaProviderConfigured = $captchaClient->isCaptchaProviderConfigured();
+
+        // Assert
+        $this->assertTrue($isCaptchaProviderConfigured);
+    }
+
+    /**
+     * @dataProvider provideIncompleteConfigurations
+     */
+    public function testIsNotConfiguredWithAnIncompleteConfigurationWithoutLogging(string $version, string $siteKey, string $secretKey): void
+    {
+        // Arrange
+        $this->tester->haveRecaptchaConfiguration($version, $siteKey, $secretKey);
+        $this->tester->haveRecordingLogger();
+
+        // Act
+        $isConfigured = $this->tester->createPlugin()->isConfigured();
+
+        // Assert
+        $this->assertFalse($isConfigured);
+        $this->assertSame([], $this->tester->getLogRecords('error'));
+        $this->assertSame([], $this->tester->getLogRecords('warning'));
+    }
+
+    /**
+     * @return array<string, array<string>>
+     */
+    public function provideIncompleteConfigurations(): array
+    {
+        return [
+            'empty site key' => [CaptchaGoogleRecaptchaConfig::VERSION_V2_CHECKBOX, '', CaptchaGoogleRecaptchaClientTester::SECRET_KEY],
+            'empty secret key' => [CaptchaGoogleRecaptchaConfig::VERSION_V3, CaptchaGoogleRecaptchaClientTester::SITE_KEY, ''],
+            'unknown version' => ['v1', CaptchaGoogleRecaptchaClientTester::SITE_KEY, CaptchaGoogleRecaptchaClientTester::SECRET_KEY],
+        ];
+    }
+
     public function testPostsTokenInGoogleResponseField(): void
     {
         // Arrange
