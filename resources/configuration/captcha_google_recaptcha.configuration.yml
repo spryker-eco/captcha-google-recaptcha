@@ -1,0 +1,124 @@
+# yaml-language-server: $schema=../../../../Spryker/Configuration/resources/configuration/configuration-schema-v1.json
+features:
+    - key: integrations
+      name: Integrations
+      description: Third-party integrations configuration.
+      enabled: true
+      order: 100
+      tabs:
+          - key: google_recaptcha
+            name: Google reCAPTCHA
+            description: Google reCAPTCHA for the CAPTCHA of the login forms.
+            enabled: true
+            order: 20
+            groups:
+                - key: credentials
+                  name: reCAPTCHA Key
+                  description: 'Version, site key and secret key of one reCAPTCHA key. The key must be of the selected version and list every Storefront, Back Office and Merchant Portal domain. Documentation: https://developers.google.com/recaptcha/intro'
+                  enabled: true
+                  order: 0
+                  scopes:
+                      - global
+                  settings:
+                      - key: version
+                        name: reCAPTCHA Version
+                        description: The v2 checkbox asks the user to tick "I'm not a robot"; v3 scores the user invisibly when the form is submitted.
+                        type: radio
+                        default_value: v2_checkbox
+                        enabled: true
+                        secret: false
+                        storefront: true
+                        order: 0
+                        scopes:
+                            - global
+                        options:
+                            - value: v2_checkbox
+                              label: v2 Checkbox
+                            - value: v3
+                              label: v3 Score
+                        constraints:
+                            - type: choice
+                              message: Must be one of the supported reCAPTCHA versions.
+                              options:
+                                  choices:
+                                      - v2_checkbox
+                                      - v3
+                      - key: site_key
+                        name: Site Key
+                        description: The public site key the CAPTCHA widget is rendered with.
+                        type: string
+                        default_value: ''
+                        enabled: true
+                        secret: false
+                        storefront: true
+                        order: 1
+                        scopes:
+                            - global
+                        constraints:
+                            - type: regex
+                              message: Must be a reCAPTCHA site key.
+                              options:
+                                  pattern: '^[A-Za-z0-9_-]{20,100}$'
+                      - key: secret_key
+                        name: Secret Key
+                        description: The secret key the token is verified with. Stored encrypted.
+                        type: string
+                        default_value: ''
+                        enabled: true
+                        secret: true
+                        storefront: false
+                        order: 2
+                        scopes:
+                            - global
+                        constraints:
+                            - type: regex
+                              message: Must be a reCAPTCHA secret key.
+                              options:
+                                  pattern: '^[A-Za-z0-9_-]{20,100}$'
+                      - key: score_threshold
+                        name: Minimum Score (v3)
+                        description: A v3 token whose score is below this value is rejected. Google recommends starting with 0.5.
+                        type: float
+                        default_value: 0.5
+                        enabled: true
+                        secret: false
+                        storefront: false
+                        order: 3
+                        scopes:
+                            - global
+                        dependencies:
+                            - when:
+                                  any:
+                                      - setting: integrations:google_recaptcha:credentials:version
+                                        operator: equals
+                                        value: v3
+                        constraints:
+                            - type: range
+                              message: Must be between 0.1 and 1.0.
+                              options:
+                                  min: 0.1
+                                  max: 1.0
+                - key: verification
+                  name: Token Verification
+                  description: Checks of a verified token in addition to the checks of Google.
+                  enabled: true
+                  order: 1
+                  scopes:
+                      - global
+                  settings:
+                      - key: allowed_hostnames
+                        name: Allowed Hostnames
+                        description: Hosts a token must have been solved on, separated by commas, for example the Storefront, Back Office and Merchant Portal hosts. Leave empty to accept every host that Google accepts for the key.
+                        type: string
+                        default_value: ''
+                        enabled: true
+                        secret: false
+                        storefront: false
+                        order: 0
+                        scopes:
+                            - global
+                        constraints:
+                            - type: regex
+                              message: Must be host names separated by commas.
+                              options:
+                                  pattern: '^[A-Za-z0-9.,\s-]*$'
